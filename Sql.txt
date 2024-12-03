@@ -1,0 +1,183 @@
+Sql User defined function Example
+---------------------------------
+
+CREATE TABLE functionEx (name VARCHAR(30),dob DATE)
+
+INSERT INTO functionEx VALUES ('Abhijith','2003-12-15'),
+			      ('Adarsh','1999-11-20'),
+			      ('Dinil','2001-10-10');
+
+
+CREATE FUNCTION ageCalculate(@dob DATE)
+RETURNS INT
+
+AS
+
+BEGIN 
+	DECLARE @age INT
+	SET @age = DATEDIFF(YEAR,@age,GETDATE())
+	RETURN @age
+END
+
+
+SELECT *,dbo.ageCalculate(dob) AS Age FROM functionEx;
+---------------------------------------------------------------
+
+
+
+SQL STORED PROCEDURE
+--------------------
+
+
+CREATE TABLE customer (Name VARCHAR(30),State VARCHAR(30),Country VARCHAR(30));
+
+INSERT INTO customer VALUES('John','Kerala','India'),
+						   ('Adarsh','Kerala','India'),
+						   ('Amar','UP','India'),
+						   ('Anna','NewYork','US'),
+						   ('Ben','NewYork','US')
+
+
+SELECT * FROM customer 
+
+*)Procedure to select all customers
+
+CREATE PROCEDURE selectCustomer
+AS
+BEGIN
+	SELECT * FROM customer
+END
+
+
+*)Prcedure to select customers according to state
+
+
+
+CREATE PROCEDURE customerState @state varchar(30)
+AS
+BEGIN
+	SELECT * FROM customer WHERE state = @state
+END
+
+
+exec customerState @state = 'kerala'
+
+
+*)Using multiple parameters
+
+
+
+CREATE PROCEDURE customersSelect @state varchar(30), @name varchar(10)
+AS
+BEGIN
+SELECT * FROM Customer WHERE state = @state AND name = @name;
+END
+
+exec customersSelect @state = 'kerala',@name = 'Adarsh'
+
+
+*) Update statement
+
+CREATE PROCEDURE changeState @stateBefore varchar(30),@stateAfter varchar(30)
+AS
+BEGIN
+UPDATE Customer SET state = @stateAfter WHERE state = @stateBefore
+END
+
+exec changeState @stateBefore = 'NewYork',@stateAfter = 'NewJersey'
+
+
+---------------------------------------------------------------------------
+
+
+SQL TRIGGER EXAMPLE
+-------------------
+
+CREATE TABLE Employee  
+(  
+  Id INT PRIMARY KEY,  
+  Name VARCHAR(45),  
+  Salary INT,  
+  Gender VARCHAR(12),  
+  DepartmentId INT  
+)  
+
+
+INSERT INTO Employee VALUES (1,'Steffan', 82000, 'Male', 3),  
+(2,'Amelie', 52000, 'Female', 2),  
+(3,'Antonio', 25000, 'male', 1),  
+(4,'Marco', 47000, 'Male', 2),  
+(5,'Eliana', 46000, 'Female', 3)  
+
+select * from Employee
+
+
+
+CREATE TABLE Employee_Audit_Test  
+(    
+Id int IDENTITY,   
+Audit_Action text   
+)  
+
+
+CREATE TRIGGER trInsertEmployee   
+ON Employee  
+FOR INSERT  
+AS  
+BEGIN  
+  Declare @Id int  
+  SELECT @Id = Id from inserted  
+  INSERT INTO Employee_Audit_Test  
+  VALUES ('New employee with Id = ' + CAST(@Id AS VARCHAR(10)) + ' is added at ' + CAST(Getdate() AS VARCHAR(22)))  
+END  
+
+INSERT INTO Employee VALUES (6,'Peter', 62000, 'Male', 3)  
+
+
+select * from Employee_Audit_Test
+
+
+DECLARE @id INT, @c_name NVARCHAR(50), @city NVARCHAR(50)  
+   
+
+DECLARE @Counter INT  
+SET @Counter = 1  
+   
+
+DECLARE PrintCustomers CURSOR  
+FOR  
+SELECT id, c_name, city FROM customer1  
+  
+
+OPEN PrintCustomers  
+   
+
+FETCH NEXT FROM PrintCustomers INTO  
+@id, @c_name, @city  
+  
+
+WHILE @@FETCH_STATUS = 0  
+    BEGIN  
+        IF @Counter = 1  
+        BEGIN  
+            PRINT 'id' + CHAR(9) + 'c_name' + CHAR(9) + CHAR(9) + 'city'  
+            PRINT '--------------------------'  
+        END  
+
+        PRINT CAST(@id AS NVARCHAR(10)) + CHAR(9) + @c_name + CHAR(9) + CHAR(9) + @city  
+      
+  
+        SET @Counter = @Counter + 1  
+   
+  
+        FETCH NEXT FROM PrintCustomers INTO  
+        @id, @c_name, @city  
+    END  
+   
+ 
+CLOSE PrintCustomers  
+  
+ 
+DEALLOCATE PrintCustomers 
+
+
